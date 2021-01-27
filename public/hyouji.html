@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WSA</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/7.6.2/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/7.6.2/firebase-auth.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-firestore.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-storage.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+
+</head>
+<style>
+    body {
+        background-image: url("repeated-square.png");
+    }
+</style>
+
+<body>
+
+    <div id="loadnav"></div>
+    <div class="container">
+        <div class="row col-md-12 justify-content-center">
+            <div id="content" class="card d-flex" style="margin-top:20px">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function () {
+            var params = (new URL(document.location)).searchParams;
+            var docid = params.get('docid');
+            var name = params.get('name');
+            var url;
+            console.log(docid);
+            var db = firebase.firestore();
+
+            var docRef = db.collection("images").doc(docid);
+
+            docRef.get().then((doc) => {
+                if (doc.exists) {
+                    url = doc.data().URL;
+                    userid = doc.data().userID
+                    console.log(url)
+                    $('#content').append('<p class="text-center" style="margin-top:20px;">' + name + '</p><img class="card-img-top" src="' + url + '" alt="画像">');
+
+                    $('#content').append('<button type="button" class="btn page-link text-dark d-inline-block" onclick="test()"><spanclass= "sr-only" > 選択したマーカーダウンロード</span ></button >')
+                    firebase.auth().onAuthStateChanged(function (user) {
+                        if (user.uid == userid) {
+                            $('#content').append('<button class="page-link text-dark d-inline-block" style="margin-top:20px;" type="button" id="delete" onclick="del()" >削除</button>');
+
+                        } else {
+                            console.log("ログインしていない")
+                        };
+                    });
+
+                }
+                else {
+                    console.log("404");
+                }
+            })
+                .catch((error) => {
+                    console.log(`データを取得できませんでした (${error})`);
+                });
+
+        }
+    </script>
+    <script>
+        function test() {
+            var params = (new URL(document.location)).searchParams;
+            var docid = params.get('docid');
+            var db = firebase.firestore();
+            var docRef = db.collection("images").doc(docid);
+            docRef.get().then((doc) => {
+                if (doc.exists) {
+                    var url = doc.data().URL;
+                    window.open(url);
+
+                };
+            });
+
+        };
+    </script>
+    <script>
+        function del() {
+            var result = window.confirm('削除しても宜しいですか？');
+
+            if (result) {
+
+                var params = (new URL(document.location)).searchParams;
+                var docid = params.get('docid');
+                var db = firebase.firestore();
+                var docRef = db.collection("images").doc(docid);
+                docRef.delete().then(function () {
+                    console.log("Document successfully deleted!");
+                    alert("削除しました");
+                    window.location.href = 'itirann.html'
+                }).catch(function (error) {
+                    console.error("Error removing document: ", error);
+                });
+            }
+            else {
+                alert("キャンセルしました");
+            }
+
+        };
+    </script>
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+
+    <script>
+        $(function () {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (!user) {
+                    var body = document.getElementById("loadnav");
+                    body.innerHTML = '<nav id="nav" class="navbar navbar-expand-md navbar-dark bg-dark"></nav >';
+                    $("#nav").load("nolognav.html");
+                } else {
+                    var body = document.getElementById("loadnav");
+                    body.innerHTML = '<nav id="nav" class="navbar navbar-expand-md navbar-dark bg-dark"></nav >';
+                    $("#nav").load("nav.html");
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

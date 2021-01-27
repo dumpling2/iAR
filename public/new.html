@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WSA</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link type="text/css" href="css/new.css" rel="stylesheet">
+  <!-- update the version number as needed -->
+  <script defer src="/__/firebase/7.6.2/firebase-app.js"></script>
+  <!-- include only the Firebase features as you need -->
+  <script src="/__/firebase/7.6.2/firebase.js"></script>
+  <script defer src="/__/firebase/7.6.2/firebase-auth.js"></script>
+  <script defer src="/__/firebase/7.6.2/firebase-database.js"></script>
+  <script defer src="/__/firebase/7.6.2/firebase-messaging.js"></script>
+  <script defer src="/__/firebase/7.6.2/firebase-storage.js"></script>
+  <!-- initialize the SDK after all desired features are loaded -->
+  <script defer src="/__/firebase/init.js"></script>
+
+</head>
+
+
+<body>
+  <!--新規登録-->
+  <div class="wrapper">
+    <div class="container">
+      <h1>新規登録</h1>
+
+      <form class="form">
+        <p id="inp" style="color: red;"></p>
+        <input type="name" id="displayName" placeholder="Name">
+        <input type="text" id="newemail" placeholder="email">
+        <input type="password" id="newpassword" placeholder="Password">
+        <button type="button" id="login-button" onclick="onnewBtn()" value="Login">登録</button>
+      </form>
+    </div>
+
+    <ul class="bg-bubbles">
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
+
+
+
+
+  <script>
+    function onnewBtn() {
+      var email = $("#newemail").val();
+      console.log(email)
+      var password = $("#newpassword").val();
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(function (user) {
+          var userName = $("#displayName").val();
+          var user = firebase.auth().currentUser;
+          user.updateProfile({
+            displayName: userName
+          })
+          console.log(user); //ここにユーザー情報が入る
+          window.location.href = "log.html";
+        }).catch(function (error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          var p = document.getElementById("inp");
+          p.innerHTML = errorMessage;
+          console.log(errorMessage)
+          console.log(errorCode)
+        });
+    }
+  </script>
+
+
+
+
+  <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+</body>

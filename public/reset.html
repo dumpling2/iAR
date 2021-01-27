@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/css.css">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/7.6.2/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/7.6.2/firebase-auth.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-database.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-storage.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+</head>
+
+<style>
+    body {
+        background-image: url("repeated-square.png");
+    }
+
+    .row {
+        margin-top: 20px;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div style="margin-top: 100px;">
+                <h4>パスワードリセット</h4>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div>
+                <p>登録しているメールアドレスを入力してください</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="w-50">
+                <input type="email" class="form-control w-100" id="maill" placeholder="Eメールアドレス">
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <input type="button" value="送信する" onClick="reset()">
+        </div>
+
+
+    </div>
+
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+
+
+    <script>
+        function reset() {
+            var test = document.getElementById("maill");
+            console.log(test.value)
+            var auth = firebase.auth();
+            var emailAddress = test.value;
+
+            auth.sendPasswordResetEmail(emailAddress).then(function () {
+                alert("メールを確認してください");
+                location.href = "index.html"
+            }).catch(function (error) {
+                alert("メールを確認してください");
+                location.href = "index.html"
+            });
+        }
+    </script>
+
+
+</body>
+
+
+</html>

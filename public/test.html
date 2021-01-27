@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charaset="utf-8">
+    <title>選択</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/7.6.2/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/7.6.2/firebase-auth.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-firestore.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-storage.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+</head>
+
+<body>
+    <header>
+    </header>
+    <div id="main" class="site-width">
+
+        <!-- キャラクター選択画面-->
+        <div class="characters-select-area">
+            <h1>選択</h1>
+
+            <form method="get" action="play.html">
+
+                <!--上段のキャラクターが配置されているエリア  -->
+                <div id="container-top-characters" class="site-width">
+
+                    <!-- for属性の値とinputタグのid属性の値を同じにすることで、ブラウザでラベルをクリックした際に、inputタグをクリックしたのと同じ動作が可能になる -->
+                    <!-- labelタグにはjsで使うクラス「js-panel-select」を用意しておく-->
+                    <label for="man" class="panel panel-ceo js-panel-select">
+                        <!-- ラジオボタンを用意する-->
+                        <input type="radio" name="ceo-select" value="0" id="man">
+                        <img class="panel-img" src="img/man.png">
+                    </label>
+                    <label for="woman" class="panel panel-ceo js-panel-select">
+                        <input type="radio" name="ceo-select" value="1" id="woman">
+                        <img class="panel-img" src="img/woman.png">
+                    </label>
+                    <label for="ninja" class="panel panel-ceo js-panel-select">
+                        <input type="radio" name="ceo-select" value="2" id="ninja">
+                        <img class="panel-img" src="img/ninja.png">
+                    </label>
+                </div>
+
+                <!--下段のキャラクターが配置されているエリア  -->
+                <div id="container-bottom-characters" class="site-width">
+                    <label for="monkey" class="panel panel-ceo js-panel-select">
+                        <input type="radio" name="ceo-select" value="3" id="monkey">
+                        <img class="panel-img" src="img/monkey.png">
+                    </label>
+                    <label for="dog" class="panel panel-ceo js-panel-select">
+                        <input type="radio" name="ceo-select" value="4" id="dog">
+                        <img class="panel-img" src="img/dog.png">
+                    </label>
+                </div>
+
+
+                <!-- submitボタンのinputタグにはjsで使うクラス「js-btn-prohibid」を用意しておく -->
+                <!-- 属性disabledをつけておき、ボタンを非活性にする -->
+                <input type="submit" class="btn btn-slect js-btn-prohibid" value="選択" disabled="disabled">
+            </form>
+        </div>
+
+        <div class="container">
+            <form action="">
+                <div class="row">
+                    <label for="man" class="panel panel-ceo js-panel-select">
+                        <!-- ラジオボタンを用意する-->
+                        <input type="radio" name="ceo-select" value="0" id="man">
+                        <img class="panel-img" src="img/man.png">
+                    </label>
+                </div>
+                <div class="row">
+                    <label for="man" class="panel panel-ceo js-panel-select">
+                        <!-- ラジオボタンを用意する-->
+                        <input type="radio" name="ceo-select" value="1" id=" man">
+                        <img class="panel-img" src="img/man.png">
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <footer class="site-width">
+        </footer>
+        <script src="https://code.jquery.com/jquery-3.4.1.js"
+            integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+        <script>
+
+            ////キャラクター選択
+            //クラス js-panel-select のDOMを変数に入れる
+            var $selectPanel = $('.js-panel-select');
+
+            //変数$selectPanelの要素をクリックしたとき
+            $selectPanel.on('click', function (e) {
+                //変数$selectPanelの要素のCSSを変更して、枠線を透明にする（前回クリックしたときの赤い枠線を消すため）
+                $selectPanel.css('border', '5px rgba(0,0,0,0) solid');
+                //クリックした要素のCSSを変更して枠線を赤くする
+                $(this).css('border', '5px red solid');
+
+            });
+
+            ////ボタン活性化
+            //クラス js-btn-prohibid のDOMを変数に入れる
+            var $prohibidBtn = $('.js-btn-prohibid');
+
+            //変数$selectPanelの要素をクリックしたとき
+            $selectPanel.on('click', function (e) {
+                //クラスjs-btn-permitを追加する(ボタンの色が変わる)
+                //クラスjs-btn-prohibidを削除する(ボタンの色が変わる)
+                //属性disabledを削除する(ボタンが活性化される)
+                $prohibidBtn.addClass('js-btn-permit').removeClass('js-btn-prohibid').removeAttr('disabled');
+            });
+
+
+        </script>
+
+
+</body>
+
+</html>

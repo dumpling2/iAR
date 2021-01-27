@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WSA</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/7.6.2/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/7.6.2/firebase-auth.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-firestore.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-storage.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+
+</head>
+<style>
+    input {
+        display: none;
+    }
+
+    #aiueo {
+        margin-top: 20px;
+        border: 5px #0000;
+    }
+
+    .card {
+        height: 300px;
+        width: 200px;
+    }
+
+    img {
+        border: 1px #0000
+            /*    width: 200px;
+        height: 200px; */
+    }
+
+    .row {
+        margin-top: 20px;
+    }
+
+    body {
+        background-image: url("repeated-square.png");
+    }
+</style>
+
+
+<div id="loadnav"></div>
+
+
+<div class="container" id="aiueo">
+    <h4>3Dモデル一覧</h4>
+</div>
+<script>
+    window.onload = function () {
+        var add_contents = '<div class="row">'
+        var i = 1;
+        var map = new Map();
+        var db = firebase.firestore();
+        db.collection("3d").get().then(function (querySnapshot) {
+            querySnapshot.forEach(function (doc) {
+                // doc.data() is never undefined for query doc snapshots
+                /* console.log(doc.data().URL); */
+                console.log(doc.id);
+                let docid = doc.id;
+                let url = doc.data().dimg
+                let name = doc.data().filename;
+                var j = i % 4;
+                var reg = /(.*)(?:\.([^.]+$))/;
+                var file_name = name;
+
+                name = file_name.match(reg)[1]
+                /* console.log(url); */
+                add_contents += '<div class="col-md-3 d-flex"><a onclick="cardClick(' + "&quot;" + name + "&quot;" + '); "><div class="card"><form action="3dhyouji.html"method="get"><input type="hidden" name="docid" value="' + docid + '"><img class="card-img-top" src="' + url + '" alt=""><div class="card-body"><input style="dsiplay:none!important;" type="submit" id="' + name + '"  value="' + name + '"><p>' + name + '</p></div></form ></div></a></div>'
+                /*  console.log(add_contents); */
+                if (j == 0) {
+                    add_contents += '</div>'
+                    add_contents += '<div class="row">'
+                };
+
+                i = i + 1;
+                /* console.log(i); */
+            });
+            /*  console.log(add_contents); */
+            $('#aiueo').append(add_contents);
+        });
+
+        console.log(Object.keys(map).length);
+
+    };
+</script>
+
+<script>
+    function cardClick(id) {
+        console.log(id)
+        document.getElementById(id).click();
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+    crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+
+<script>
+    $(function () {
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                var body = document.getElementById("loadnav");
+                body.innerHTML = '<nav id="nav" class="navbar navbar-expand-md navbar-dark bg-dark"></nav >';
+                $("#nav").load("nolognav.html");
+            } else {
+                var body = document.getElementById("loadnav");
+                body.innerHTML = '<nav id="nav" class="navbar navbar-expand-md navbar-dark bg-dark"></nav >';
+                $("#nav").load("nav.html");
+            }
+        });
+    });
+</script>
+
+</body>
+
+</html>

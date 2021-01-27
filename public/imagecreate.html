@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<!-- タイトル表示 -->
+<title>WebShareAugmentedRealityMarkerMakerSite</title>
+<!-- ホームページの文字コードを指定 -->
+<meta charset="UTF-8">
+<!-- GoogleMaterialStyleを取得 スクロールジャンク警告が発生する -->
+<link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
+<link rel='stylesheet' href='https://code.getmdl.io/1.3.0/material.indigo-blue.min.css'>
+<script defer src='https://code.getmdl.io/1.3.0/material.min.js'></script>
+<link href='https://fonts.googleapis.com/icon?family=Material+Icons' rel='stylesheet'>
+
+<!-- PDFの作成を行うJsコード -->
+<script src='./pdfMake/pdfmake.min.js'></script>
+<script src='./pdfMake/vfs_fonts.js'></script>
+
+<!-- ARPatternFileのJsコード -->
+<script src='./threex-arpatternfile.js'></script>
+<!-- ***** ここからstyleの設定 ***** -->
+<style media='screen'>
+	body {
+		font-family: arial;
+		background-color: #ddd;
+	}
+
+	h1 {
+		text-align: center;
+		font-size: 500%;
+	}
+
+	div.mdl-cell {
+		text-align: center;
+	}
+
+	h1 a {
+		text-decoration: none;
+	}
+
+	h1 a:hover {
+		text-decoration: underline;
+	}
+
+	#imageContainer img {
+		width: 100%;
+		max-width: 512px;
+	}
+
+	#topRightButtons {
+		position: fixed;
+		top: 1em;
+		right: 1em;
+	}
+</style>
+<!-- ***** ここから本文 ****** -->
+
+<body>
+	<!-- タイトル文字 -->
+	<h1>WSAMM</h1>
+	<!-- アップロードボタン -->
+	<div class='mdl-grid'>
+		<div class='mdl-cell mdl-cell--4-col'>
+			<label id='buttonUpload' for='fileinput'
+				class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent'>
+				<input id="fileinput" type="file" accept="image/png,image/jpeg,image/gif" capture="user"
+					style='display: none'>
+				アップロード
+				<!-- <input type='file' id='fileinput' style='display: none'> -->
+			</label>
+			<div class='mdl-tooltip' for='buttonUpload'>
+				画像をアップロードするとマーカー内に配置されます
+			</div>
+
+			<!-- パターン比の調整 -->
+			<div style="justify-content: center" class='mdl-grid'>
+				<div class='mdl-cell mdl-cell--12-col'>
+					<label for="ImageWidthAddSlider">
+						<span class="">画像の横調整 0.00</span>
+						<input id='ImageWidthAddSlider' class="mdl-slider mdl-js-slider" type="range" min="-100"
+							max="100" value="0">
+					</label>
+					<div class='mdl-tooltip' for='ImageWidthAddSlider'>
+						画像の横位置を調整します<br>値が負の場合、左に<br>正の場合、右に移動します
+					</div>
+				</div>
+			</div>
+
+			<!-- 画像サイズの調整 -->
+			<div style="justify-content: center" class='mdl-grid'>
+				<div class='mdl-cell mdl-cell--12-col'>
+					<label for="ImageHeightAddSlider">
+						<span class="">画像の縦調整 0.00</span>
+						<input id='ImageHeightAddSlider' class="mdl-slider mdl-js-slider" type="range" min="-100"
+							max="100" value="0">
+					</label>
+					<div class='mdl-tooltip' for='ImageHeightAddSlider'>
+						画像のピクセル幅/高さを設定します
+					</div>
+				</div>
+			</div>
+
+			<!-- 画像の使用領域 -->
+			<div style="justify-content: center" class='mdl-grid'>
+				<div class='mdl-cell mdl-cell--12-col'>
+					<label for="UseRatioSlider">
+						<span class="">使用領域 1.00</span>
+						<input id='UseRatioSlider' class="mdl-slider mdl-js-slider" type="range" min="25" max="100"
+							value="100">
+					</label>
+					<div class='mdl-tooltip' for='UseRatioSlider'>
+						内側の画像の大きさと<br>黒枠の大きさを設定します
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<div class='mdl-cell mdl-cell--4-col'>
+			<button id='buttonDownloadEncoded'
+				class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent'>
+				マーカーをダウンロード
+			</button>
+			<div class='mdl-tooltip' for='buttonDownloadEncoded'>
+				アップロードした画像の<br>マーカーをダウンロードします
+			</div>
+			<br />
+			<br />
+			<button id='buttonDownloadFullImage'
+				class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent'>
+				画像をダウンロード
+			</button>
+			<div class='mdl-tooltip' for='buttonDownloadFullImage'>
+				マーカー画像をダウンロードします
+			</div>
+			<br>
+			<br>
+			<button class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent'
+				onclick="location.href='../upload.html' ">
+				アップロード画面に移動
+			</button>
+		</div>
+		<div class='mdl-cell mdl-cell--4-col'>
+			<button id='buttonDownloadPDFOnePerPage'
+				class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent'>
+				PDF One per Page
+			</button>
+			<div class='mdl-tooltip' for='buttonDownloadPDFOnePerPage'>
+				Download markers as PDF
+				<br />
+				One marker per page
+			</div>
+			<br />
+			<br />
+			<button id='buttonDownloadPDFTwoPerPage'
+				class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent'>
+				PDF Two per Page
+			</button>
+			<div class='mdl-tooltip' for='buttonDownloadPDFTwoPerPage'>
+				Download markers as PDF
+				<br />
+				Two marker per page
+			</div>
+			<br />
+			<br />
+			<button id='buttonDownloadPDFSixPerPage'
+				class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent'>
+				PDF Six per Page
+			</button>
+			<div class='mdl-tooltip' for='buttonDownloadPDFSixPerPage'>
+				Download markers as PDF.
+				<br />
+				Six marker per page
+			</div>
+		</div>
+	</div>
+
+	<div class='mdl-grid'>
+
+		<div class='mdl-cell mdl-cell--3-col'></div>
+		<div class='mdl-cell mdl-cell--6-col'>
+			<div id='imageContainer'></div>
+		</div>
+		<div class='mdl-cell mdl-cell--3-col'></div>
+	</div>
+
+
+
+	<script>
+		// ローカル変数
+		var innerImageURL = null
+		var fullMarkerURL = null
+		var imageName = null
+		// 追加変数
+		var count = 0
+		var originalImage = null
+
+		//サンプルの画像
+		//*****【ブラウザによっては初期読み込みが出来ない】*****
+		//参照先をAndroid,IOS,PCごとに設定する必要があるかも
+		innerImageURL = 'inner-images/inner-arjs.png'
+		originalImage = innerImageURL
+		updateFullMarkerImage(true)
+
+		//エンコードダウンロードボタンを押したときの動作
+		document.querySelector('#buttonDownloadEncoded').addEventListener('click', function () {
+			//画像が無い場合
+			if (innerImageURL === null) {
+				alert('始めに画像ファイルをアップロードしてください')
+				return //終了
+			}
+			//エラーを表示する（innerImageURLがNUllでない場合?)
+			console.assert(innerImageURL)
+			THREEx.ArPatternFile.encodeImageURL(innerImageURL, function onComplete(patternFileString) {
+				THREEx.ArPatternFile.triggerDownload(patternFileString, "pattern-" + (imageName || "marker") + ".patt")
+			})
+		})
+
+
+		document.querySelector('#buttonDownloadFullImage').addEventListener('click', function () {
+			// debugger
+			if (innerImageURL === null) {
+				alert('upload a file first')
+				return
+			}
+
+			// tech from https://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server
+			var domElement = window.document.createElement('a');
+			domElement.href = fullMarkerURL;
+			domElement.download = "pattern-" + (imageName || 'marker') + '.png';
+			document.body.appendChild(domElement)
+			domElement.click();
+			document.body.removeChild(domElement)
+		})
+
+		// 【パターン比率のスライダー関数】
+		document.querySelector('#ImageWidthAddSlider').addEventListener('input', function () {
+			// update the patternRatio number
+			var ImageWidthAdd = document.querySelector('#ImageWidthAddSlider').value / 100
+			var domElement = document.querySelector('[for=ImageWidthAddSlider] span')
+			domElement.innerHTML = `画像の横調整 ${ImageWidthAdd.toFixed(2)}`
+
+			// update fullMarkerImage
+			updateFullMarkerImage(false)
+		})
+
+		// 【画像の大きさのスライダー関数】
+		document.querySelector('#ImageHeightAddSlider').addEventListener('input', function () {
+			// update the patternRatio number
+			var ImageHeightAdd = document.querySelector('#ImageHeightAddSlider').value / 100
+			var domElement = document.querySelector('[for=ImageHeightAddSlider] span')
+			domElement.innerHTML = `画像の縦調整 ${ImageHeightAdd.toFixed(2)}`
+
+			// update fullMarkerImage
+			updateFullMarkerImage(false)
+		})
+
+		// 【使用領域のスライダー関数】
+		document.querySelector('#UseRatioSlider').addEventListener('input', function () {
+			// update the patternRatio number
+			var useRatio = document.querySelector('#UseRatioSlider').value / 100
+			var domElement = document.querySelector('[for=UseRatioSlider] span')
+			domElement.innerHTML = `使用領域 ${useRatio.toFixed(2)}`
+
+			// update fullMarkerImage
+			updateFullMarkerImage(false)
+		})
+
+		// クリックイベントの追加
+		document.querySelector('#UseRatioSlider').addEventListener('mouseup', SliderUp)
+		document.querySelector('#ImageHeightAddSlider').addEventListener('mouseup', SliderUp)
+		document.querySelector('#ImageWidthAddSlider').addEventListener('mouseup', SliderUp)
+		// タッチイベントの追加
+		document.querySelector('#UseRatioSlider').addEventListener('touchend', SliderUp)
+		document.querySelector('#ImageHeightAddSlider').addEventListener('touchend', SliderUp)
+		document.querySelector('#ImageWidthAddSlider').addEventListener('touchend', SliderUp)
+
+		// スライダーから離したときの動作
+		function SliderUp() {
+			//高画質なマーカーを作成する
+			updateFullMarkerImage(true)
+		}
+
+		// アップロードの内容が変更されたら
+		document.querySelector('#fileinput').addEventListener('change', function () {
+			// ファイルを取得する
+			var file = this.files[0];
+			// ファイル名を取得する
+			imageName = file.name
+			// ファイル名から拡張子を除く
+			imageName = imageName.substring(0, imageName.lastIndexOf('.')) || imageName
+			// 新しくイメージ要素を作成
+			var image = new Image();
+			// 新しくファイル読み込みを作成
+			var reader = new FileReader();
+			// ファイルの読み込みが完了後
+			reader.onload = function (event) {
+				// 画像の読み込みが完了後
+				image.onload = function () {
+					// 画像横長さを最大とする
+					var MaxSize = image.width
+					// 最大値より縦長さが長い場合
+					if (MaxSize > image.height) {
+						// 高さを最大値とする
+						MaxSize = image.height
+					}
+					//長さ最大が206pxを超えている場合のみリサイズする
+					if (MaxSize > 206) {
+						// 画像の大きさを206にする割合を求める
+						var par = 206 / MaxSize
+						// 新しくキャンバスを作成する
+						var canvas = document.createElement('canvas');
+						// 割合よりキャンバスの大きさを指定する
+						canvas.width = image.width * par
+						canvas.height = image.height * par
+						// contextを取得する
+						var context = canvas.getContext('2d');
+						// リサイズした画像を出力する
+						context.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
+						// デモ用として軽量画像を保存
+						innerImageURL = canvas.toDataURL();
+					} else {
+						// 元画像をそのまま使用
+						innerImageURL = image.src
+					}
+					// 元画像を保存しておく
+					originalImage = image.src
+					//マーカーの作成を行う
+					updateFullMarkerImage(false)
+				}
+				// リーダーで読み込んだファイルを指定
+				image.src = event.target.result
+			};
+			reader.readAsDataURL(file);
+		})
+
+		//マーカのアップデート
+		function updateFullMarkerImage(HD) {
+			// 情報の取得
+			// パターン比率の取得
+			var ImageWidthAdd = document.querySelector('#ImageWidthAddSlider').value / 100
+			//画像の大きさの取得
+			var ImageHeightAdd = document.querySelector('#ImageHeightAddSlider').value / 100
+
+			var useRatio = document.querySelector('#UseRatioSlider').value / 100
+
+			//色を16進数化
+			function hexaColor(color) {
+				return /^#[0-9A-F]{6}$/i.test(color);
+			};
+
+			var s = new Option().style;
+			s.color = 'black';
+
+			// -----【追加要素 : Image表示】-----
+			// 新しく編集用の画像要素を作成する
+			var ImageProcess = document.createElement('img')
+			// 新しくキャンバスを作成する
+			var canvas = document.createElement('canvas');
+			// キャンバスから[CanvasRenderingContext2D オブジェクト]を取得する
+			var context = canvas.getContext('2d');
+			// [ImageProcess]要素がロード完了したらメソッドを実行
+			ImageProcess.addEventListener('load', function () {
+				// 画像の横長さを最小値とする
+				var MinSize = ImageProcess.width
+				// 横の差分長さの初期化
+				var diffWidth = 0
+				// 縦の差分長さの初期化
+				var diffHeight = 0
+				// 高さの長さが横の長さより短い場合
+				if (ImageProcess.height < MinSize) {
+					// 最小サイズを高さの長さにする
+					MinSize = ImageProcess.height
+					// 横の差分を更新(ちょうど中間になるように半分にする)
+					diffWidth = (ImageProcess.width - ImageProcess.height) / 2
+				} else {
+					// 縦の差分を更新
+					diffHeight = (ImageProcess.height - ImageProcess.width) / 2
+				}
+				// 画像の大きさを取得し、キャンバスの大きさに設定する
+				canvas.width = canvas.height = useRatio * MinSize
+				//拡大による開始位置差分(はみ出した部分が丁度半分になる位置)
+				var nsize = MinSize - (useRatio * MinSize)
+				var originalWidthDiff = (ImageProcess.width - useRatio * MinSize) / 2
+				var originalHeightDiff = (ImageProcess.height - useRatio * MinSize) / 2
+				// 画像を描写する("使用する画像",画像の横参照開始,画像の縦参照開始,横参照終了,縦参照終了,描写開始横位置,描写開始縦位置,横終了,縦終了)
+				context.drawImage(ImageProcess,
+					(nsize / 2) + diffWidth + originalWidthDiff * ImageWidthAdd,
+					(nsize / 2) + diffHeight - originalHeightDiff * ImageHeightAdd,
+					MinSize, MinSize, 0, 0, MinSize, MinSize);
+				// キャンバスの画像の参照先を取得
+				var imageUrl = canvas.toDataURL()
+				// 表示用に新しく画像要素を作成
+				var ViewImage = document.createElement('img')
+				// 画像要素に変更後の画像を指定
+				ViewImage.src = imageUrl
+
+				// -----ここから初期コード-----
+				//マーカー画像の作成
+				THREEx.ArPatternFile.buildFullMarker(imageUrl, 0.5, 512, 'black', function onComplete(markerUrl) {
+					fullMarkerURL = markerUrl
+
+					//画像要素の追加
+					var fullMarkerImage = document.createElement('img')
+					//作成された画像を参照先に設定
+					fullMarkerImage.src = fullMarkerURL
+
+					// imageContainerの要素を取得する
+					var container = document.querySelector('#imageContainer')
+					//containerに子要素が存在する場合、最初の子要素を削除する
+					while (container.firstChild) container.removeChild(container.firstChild)
+					// imageContainerにfullMarkerImageの画像を追加する
+					container.appendChild(fullMarkerImage)
+				})
+
+			});
+			// 出力の画質選択
+			if (HD) {
+				// 元画像を元に高画質
+				ImageProcess.src = originalImage
+			} else {
+				// 加工画像を元に低画質
+				ImageProcess.src = innerImageURL
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////////
+		//		Handle PDF
+		//////////////////////////////////////////////////////////////////////////////
+		document.querySelector('#buttonDownloadPDFOnePerPage').addEventListener('click', generatePdfOnePerPage)
+		document.querySelector('#buttonDownloadPDFTwoPerPage').addEventListener('click', generatePdfTwoPerPage)
+		document.querySelector('#buttonDownloadPDFSixPerPage').addEventListener('click', generatePdfSixPerPage)
+
+		function generatePdfOnePerPage() {
+			var docDefinition = {
+				content: [
+					{
+						image: fullMarkerURL,
+						width: 600,
+						alignment: 'center',
+					},
+				]
+			}
+			pdfMake.createPdf(docDefinition).open();
+		}
+		function generatePdfTwoPerPage() {
+			var docDefinition = {
+				content: [
+					{
+						image: fullMarkerURL,
+						width: 300,
+						alignment: 'center',
+					},
+					{
+						image: fullMarkerURL,
+						width: 300,
+						alignment: 'center',
+					},
+				]
+			}
+			pdfMake.createPdf(docDefinition).open();
+		}
+		function generatePdfSixPerPage() {
+			var docDefinition = {
+				content: [
+					{
+						columns: [
+							{
+								image: fullMarkerURL,
+								width: 250,
+							},
+							{
+								image: fullMarkerURL,
+								width: 250,
+							},
+						]
+					},
+					{
+						columns: [
+							{
+								image: fullMarkerURL,
+								width: 250,
+							},
+							{
+								image: fullMarkerURL,
+								width: 250,
+							},
+						]
+					},
+					{
+						columns: [
+							{
+								image: fullMarkerURL,
+								width: 250,
+							},
+							{
+								image: fullMarkerURL,
+								width: 250,
+							},
+						]
+					},
+				],
+			}
+			pdfMake.createPdf(docDefinition).open();
+		}
+	</script>
+
+</body>

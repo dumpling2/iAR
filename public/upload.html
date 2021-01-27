@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WSA</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/7.6.2/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/7.6.2/firebase-auth.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-firestore.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/7.6.2/firebase-storage.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+
+</head>
+<style>
+    body {
+        background-image: url("repeated-square.png");
+    }
+</style>
+
+<body>
+    <div id="loadnav"></div>
+    <div class="container" style="margin-top:20px">
+        <h4>マーカーファイルアップロード</h4>
+        <form>
+            <div class="input-group" style="margin-top: 20px;">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="inputFile">
+                    <label class="custom-file-label" for="inputFile" data-browse="参照">マーカーファイル選択...</label>
+                </div>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-secondary reset" id="マーカー">取消</button>
+                </div>
+            </div>
+            <div class="input-group" style="margin-top: 20px;">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="inputFile1">
+                    <label class="custom-file-label" for="inputFile1" data-browse="参照">マーカーpattファイル選択...</label>
+                </div>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-secondary reset" id="マーカーpatt">取消</button>
+                </div>
+            </div>
+            <input class="btn page-link text-dark btn btn-info mx-auto d-block" style="margin-top: 20px;" type="button"
+                value="マーカー作成" onClick="location.href ='imagecreate.html'">
+            <button type="button" id="upload" style="margin-top: 20px;"
+                class="btn page-link text-dark btn btn-info mx-auto d-block" onclick="upbtn()">アップロード</button>
+        </form>
+
+    </div>
+
+
+    <script>
+        function upbtn() {
+
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    const uid = user.uid;
+                    var patturl;
+                    console.log(uid);
+                    var file1 = document.getElementById("inputFile1");
+                    var file2 = file1.files[0];
+
+                    var test = document.getElementById("inputFile");
+                    var file = test.files[0];
+                    if (file != null && file2 != null) {
+                        console.log(uid);
+                        console.log(file.name); // ファイル名をログに出力する
+                        console.log(file2.name); // ファイル名をログに出力する
+
+                        if (file1.files.length > 0) {
+                            console.log(uid);
+                            // 選択されたファイル情報を取得
+                            console.log(file1.files.length);
+                            for (var i = 0; i < file1.files.length; i++) {
+                                var filea = file1.files[i]; var userName = filea.name; // Create a root reference var
+                                storageRef1 = firebase.storage().ref(); // Create a reference to image file var
+                                ImagesRef1 = storageRef1.child(uid + "/" + "patt/" + userName);
+                                ImagesRef1.put(filea).then(function (snapshot) {
+                                    console.log('Uploaded a blob or file!');
+                                    ImagesRef1.getDownloadURL().then(url => {
+                                        patturl = url;
+                                        console.log("tesutotesuto:" + patturl);
+                                        console.log('patt:' + patturl);
+                                        var db = firebase.firestore();
+                                        db.collection("patt").add({
+                                            URL: url,
+                                            filename: userName,
+                                            userID: uid,
+                                        });
+                                        test(patturl);
+                                    });
+                                });
+
+                            };
+                        };
+
+                        function test(patturl) {
+                            var test = document.getElementById("inputFile");
+                            var file = test.files[0];
+                            console.log(patturl)
+                            if (test.files.length > 0) {
+                                console.log("待機成功")
+                                console.log(uid)
+                                // 選択されたファイル情報を取得
+                                console.log(test.files.length);
+                                for (var i = 0; i < test.files.length; i++) {
+                                    var file = test.files[i];
+                                    console.log(test.files[i]);
+                                    var userName1 = file.name; // Create a root reference var
+                                    storageRef = firebase.storage().ref(); // Create a reference to image file var
+                                    ImagesRef = storageRef.child(uid + "/" + "img/" + userName1);
+
+                                    ImagesRef.put(file).then(function (snapshot) {
+                                        console.log('Uploaded a blob or file!');
+                                        ImagesRef.getDownloadURL().then(url1 => {
+                                            console.log('imageurl:' + url1);
+                                            var db = firebase.firestore();
+                                            console.log("tesutotesuto:" + patturl)
+                                            db.collection("images").add({
+                                                URL: url1,
+                                                filename: userName1,
+                                                userID: uid,
+                                                patturl: patturl,
+                                            }).then(function () {
+                                                alert("登録完了");
+                                                window.location.reload();
+                                            });
+                                        });
+                                    });
+
+                                };
+                            };
+
+                        };
+
+                    } else {
+                        alert("ファイルが選択されていません");
+                    };
+
+                } else {
+                    console.log("ログインしてない")
+                    // ログイン画面に移動
+                    alert("ログインしてください");
+
+                    window.location.href = 'log.html';
+                };
+            });
+        };
+    </script>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script>
+        $('.custom-file-input').on('change', function () {
+            $(this).next('.custom-file-label').html($(this)[0].files[0].name);
+        })
+        //ファイルの取消
+        $('.reset').click(function () {
+            if ($(this)[0].id == "マーカー") {
+                $(this).parent().prev().children('.custom-file-label').html('マーカーファイル選択...');
+                $('.custom-file-input').val('');
+            } else {
+                $(this).parent().prev().children('.custom-file-label').html('マーカーpattファイル選択...');
+                $('.custom-file-input').val('');
+            }
+
+        })
+    </script>
+    <script>
+        $(function () {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (!user) {
+                    location.href = 'index.html'
+                } else {
+                    var body = document.getElementById("loadnav");
+                    body.innerHTML = '<nav id="nav" class="navbar navbar-expand-md navbar-dark bg-dark"></nav >';
+                    $("#nav").load("nav.html");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
